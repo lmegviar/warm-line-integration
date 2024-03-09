@@ -1,0 +1,23 @@
+{
+    "manifest_version": 3,
+    "name": "Warm Line Integration",
+    "description": "GoTo and iCarol Integration",
+    "version": "1.0",
+    "action": {
+      "default_popup": "menu.html",
+      "default_icon": "bell.png"
+    },
+    "background": {
+        "service_worker": "service-worker.js"
+    },
+    "host_permissions": [
+        "*://*.goto.com/*",
+        "*://api.jive.com/contacts/v6/associated-contacts",
+        "*://*.icarol.com/*"
+    ],
+    "permissions": [
+        "webRequest",
+        "scripting",
+        "tabs"
+    ]
+}

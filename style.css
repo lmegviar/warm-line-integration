@@ -1,0 +1,12 @@
+html, body {
+    height: fit-content;
+}
+
+body {
+    font-family: monospace;
+    color: white;
+    background-color: black;
+    padding: 1.5em 1.2em;
+    line-height: 1.5;
+    font-size: medium;
+}
