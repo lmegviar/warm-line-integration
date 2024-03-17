@@ -1,63 +1,100 @@
-function querySelectorDeep(selector, root = document) {
-    // TO DO: Update to look for multiple elements at a time
+const GO_TO_POST_URL = "https://api.jive.com/contacts/v6/associated-contacts";
+const GO_TO_POST_HEADERS = {
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Connection": "keep-alive",
+    "Host": "api.jive.com",
+    "Origin": "https://app.goto.com",
+    "Referer": "https://app.goto.com/",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
+    "accept": "application/json;type=aggregated-contact",
+    "content-type": "application/json",
+};
 
-    // First, try to find the element in the current (root) document
-    let element = root.querySelector(selector);
-    if (element) {
-      return element;
-    }
-    // If not found, traverse the shadow DOMs
-    let shadowRoots = Array.from(root.querySelectorAll('*'))
-                           .filter(e => e.shadowRoot)
-                           .map(e => e.shadowRoot);
-  
-    for (let shadowRoot of shadowRoots) {
-      element = querySelectorDeep(selector, shadowRoot);
-      if (element) {
-        return element;
-      }
-    }
-    // If not found in any of these, return null
-    return null;
-}
-  
-const createGoToProfile = ({name, address, phone}) => {
-    const elements = {
-        submitButton: querySelectorDeep('[data-test="create-contact-submit"]'),
-        firstName: querySelectorDeep('[name="firstName"]'),
-        address: querySelectorDeep('[name="streetAddress"]'),
-        phone: querySelectorDeep('[name="textFieldValue"][aria-label="Phone number"]')
-    }
-    const submitButton = document.getElementById(selectors.submitButton);
-    const inputs = {
-        firstName: {
-            element: elements.submitButton,
-            value: name
-        },
-        address: {
-            element: elements.address,
-            value: address
-        },
-        phone: {
-            element: elements.phone,
-            value: phone
-        },
-        submitButton: {
-            element: elements.submitButton,
+// Wait until func returns a truthy result or waitTime * maxAttempts elapses
+const waitUntil = (func) =>{
+    const waitTime = 5000; // 5 seconds
+    const maxAttempts = 6;
+    let attempts = 0;
+    let result;
+
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            result = func();
+            if (result || (attempts > maxAttempts)) {
+                resolve(result);
+                clearInterval(interval);
+            };
+            attempts++;
+        }, waitTime);
+    });
+};
+
+// Send a request to add a new GoTo contact using the provide details
+const createGoToRequest = async ({name, address, phone}) => {
+    let store = await waitUntil(() => {
+        let token, orgId;
+        if (localStorage) {
+            Object.keys(localStorage).forEach((key) => {
+                if (key === "goto") {
+                    // Get authorization token
+                    token = JSON.parse(localStorage?.getItem(key))?.access_token;
+                } else if (key.startsWith("goto-context_")) {
+                    // Get organizational id
+                    orgId = JSON.parse(localStorage?.getItem(key))?.pbx?.id;
+                }
+            });
         }
+        return (token && orgId) ? {token, orgId} : null;
+    });
+
+    if (!store) {
+        console.log("Something went wrong fetching data from localStorage.");
+        return;
     }
 
-    console.log("ELS & INS: ", elements, inputs);
+    let body = {
+        "firstName": name,
+        "tags": [],
+        "phones": [
+            {
+                "type": "Work",
+                "phone": phone,
+                "primary": true
+            }
+        ],
+        "addresses": [
+            {
+                "streetAddress": address,
+                "type": "Work"
+            }
+        ],
+        "sourceCode": "PERSONAL"
+    };
 
-    for (const type in inputs) {
-        if (type == "submitButton") { return };
-        inputs[type].element.value = inputs[type].value;
-    }
+    let headers = Object.assign({ 
+        "authorization": `Bearer ${store.token}`,
+        "x-organization-id": store.orgId
+    }, GO_TO_POST_HEADERS);
 
-    elements.submitButton.click();
-};  
+    fetch(GO_TO_POST_URL, {
+        method: "POST", 
+        headers: headers, 
+        body: JSON.stringify(body)
+    }).then(res => res.json())
+    .then((data) => {
+        console.log("Profile created!");
+        return true;
+    })
+    .catch((err) => {
+        console.log(err)
+        return false;
+    });
+};
 
-chrome.runtime.sendMessage("loaded", (response) => {
-    console.log("Initiating creation of a new GoTo profile for :", response);
-    createGoToProfile(response);
+chrome.runtime.sendMessage("loaded", async (response) => {
+    console.log("Initiating creation of a new GoTo profile.");
+    return await createGoToRequest(response);
 });
