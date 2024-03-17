@@ -52,20 +52,24 @@ const getStore = async () => {
 };
 
 // Make body for GoTo contact POST request
-const makePOSTBody = ({name, address, phone}) => {
+const makePOSTBody = (data) => {
+    if (!data.name || !data.phone) {
+        return false;
+    }
+
     return {
-        "firstName": name,
+        "firstName": data.name,
         "tags": [],
         "phones": [
             {
                 "type": "Work",
-                "phone": phone,
+                "phone": data.phone,
                 "primary": true
             }
         ],
         "addresses": [
             {
-                "streetAddress": address,
+                "streetAddress": data.address || "",
                 "type": "Work"
             }
         ],
@@ -83,6 +87,10 @@ const createGoToRequest = async (data) => {
     }
 
     let body = makePOSTBody(data);
+    if (!body) {
+        console.log("Something went wrong with parsing the contact body data.");
+        return;
+    }
 
     let headers = Object.assign({ 
         "authorization": `Bearer ${store.token}`,

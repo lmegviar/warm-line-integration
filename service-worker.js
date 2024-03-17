@@ -27,7 +27,8 @@ const handleMessage = (msg, sender, sendResponse) => {
 
         // Close the tab where the contact was created
         // developer.chrome.com/docs/extensions/reference/api/tabs#method-remove
-        chrome.tabs.remove(sender.tab.id);
+        // We'll need to do this in an event driven way to close after completion
+        //chrome.tabs.remove(sender.tab.id);
     }
 };
 
@@ -66,7 +67,7 @@ const interceptNewICarolContacts = () => {
 
         const data = res.requestBody.formData;
         if (!data) { return; }
-        
+
         // Remove all non-numeric characters from phone string
         const strippedPhone = data["ctl00$cphBody$txtLookupPhone"]?.[0]?.replace(/[^0-9]/g, '');
         const formattedData =  {
