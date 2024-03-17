@@ -11,7 +11,6 @@
 6. Log in to your iCarol and GoTo Connect accounts.
 7. Create a new profile in iCarol.
    - A new tab will open in the background, and a profile will also be created in GoTo.
-   - For now, the GoTo background tab will stay open after each profile is create. There is no confirmation screen. There's a pending update to close these tabs after profile creation is complete.
 ---
 ### Testing without an iCarol or GoTo Connect Account
 - If you don't have an iCarol or GoTo Connect account, you can still contribute to the project using sample data created locally.
