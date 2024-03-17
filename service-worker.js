@@ -65,6 +65,8 @@ const interceptNewICarolContacts = () => {
         if (res?.method !== "POST") { return; }
 
         const data = res.requestBody.formData;
+        if (!data) { return; }
+        
         // Remove all non-numeric characters from phone string
         const strippedPhone = data["ctl00$cphBody$txtLookupPhone"]?.[0]?.replace(/[^0-9]/g, '');
         const formattedData =  {
