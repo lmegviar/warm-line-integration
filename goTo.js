@@ -107,15 +107,15 @@ const createGoToRequest = async (data) => {
     .then(res => res.json())
     .then((data) => {
         console.log("Profile created!");
-        return true;
+        chrome.runtime.sendMessage("created");
     })
     .catch((err) => {
         console.log(err);
-        return false;
+        chrome.runtime.sendMessage("failed");
     });
 };
 
 chrome.runtime.sendMessage("loaded", async (response) => {
     console.log("Initiating creation of a new GoTo profile.");
-    return await createGoToRequest(response);
+    await createGoToRequest(response);
 });

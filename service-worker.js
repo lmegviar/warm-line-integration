@@ -18,17 +18,22 @@ const pendingContacts = {/*
 */};
 
 const handleMessage = (msg, sender, sendResponse) => {
-    if (
-        sender.url === GO_TO_CREATE_CONTACT_URL 
-        && sender.tab.id in pendingContacts
-    ){
-        sendResponse(pendingContacts[sender.tab.id]);
-        delete pendingContacts[sender.tab.id];
+    if (!(sender.url === GO_TO_CREATE_CONTACT_URL 
+        && sender.tab.id in pendingContacts)) {
+            return;
+    }
 
-        // Close the tab where the contact was created
-        // developer.chrome.com/docs/extensions/reference/api/tabs#method-remove
-        // We'll need to do this in an event driven way to close after completion
-        //chrome.tabs.remove(sender.tab.id);
+    switch (msg) {
+        case "loaded": 
+            sendResponse(pendingContacts[sender.tab.id]);
+            break;
+        case "created":
+            // Close the tab where the contact was created
+            // developer.chrome.com/docs/extensions/reference/api/tabs#method-remove
+            delete pendingContacts[sender.tab.id];
+            chrome.tabs.remove(sender.tab.id);
+            break;
+        // handled failed
     }
 };
 
