@@ -13,8 +13,8 @@ const GO_TO_POST_HEADERS = {
     "content-type": "application/json",
 };
 
-// Wait until func returns a truthy result or waitTime * maxAttempts elapses
-const waitUntil = (func) =>{
+// Wait until the provided function returns a truthy result or waitTime * maxAttempts elapses
+const waitUntilPromise = (func) =>{
     const waitTime = 5000; // 5 seconds
     const maxAttempts = 6;
     let attempts = 0;
@@ -34,7 +34,7 @@ const waitUntil = (func) =>{
 
 // Get store of GoTo data required for POST requests from local storage
 const getStore = async () => {
-    return waitUntil(() => {
+    return waitUntilPromise(() => {
         let token, orgId;
         if (localStorage) {
             Object.keys(localStorage).forEach((key) => {
@@ -58,22 +58,18 @@ const makePOSTBody = (data) => {
     }
 
     return {
-        "firstName": data.name,
-        "tags": [],
-        "phones": [
-            {
-                "type": "Work",
-                "phone": data.phone,
-                "primary": true
-            }
-        ],
-        "addresses": [
-            {
-                "streetAddress": data.address || "",
-                "type": "Work"
-            }
-        ],
-        "sourceCode": "PERSONAL"
+        firstName: data.name,
+        tags: [],
+        phones: [{
+            type: "Work",
+            phone: data.phone,
+            primary: true
+        }],
+        addresses: [{
+            streetAddress: data.address || "",
+            type: "Work"
+        }],
+        sourceCode: "PERSONAL"
     };
 };
 
