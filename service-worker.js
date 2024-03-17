@@ -25,7 +25,7 @@ const handleMessage = (msg, sender, sendResponse) => {
         sendResponse(pendingContacts[sender.tab.id]);
         delete pendingContacts[sender.tab.id];
 
-        // Close the tab where they contact was created
+        // Close the tab where the contact was created
         // developer.chrome.com/docs/extensions/reference/api/tabs#method-remove
         chrome.tabs.remove(sender.tab.id);
     }
