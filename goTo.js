@@ -82,7 +82,7 @@ const createGoToRequest = async (data) => {
         return;
     }
 
-    let body = makePOSTBody(data)
+    let body = makePOSTBody(data);
 
     let headers = Object.assign({ 
         "authorization": `Bearer ${store.token}`,
@@ -102,7 +102,7 @@ const createGoToRequest = async (data) => {
         return true;
     })
     .catch((err) => {
-        console.log(err)
+        console.log(err);
         return false;
     });
 };
