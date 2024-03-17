@@ -24,6 +24,10 @@ const handleMessage = (msg, sender, sendResponse) => {
     ){
         sendResponse(pendingContacts[sender.tab.id]);
         delete pendingContacts[sender.tab.id];
+
+        // Close the tab where they contact was created
+        // developer.chrome.com/docs/extensions/reference/api/tabs#method-remove
+        chrome.tabs.remove(sender.tab.id);
     }
 };
 
@@ -33,6 +37,7 @@ const initiateNewGoToProfile = (data) => {
         active: false
     }, async (tab) => {
         pendingContacts[tab.id] = data;
+        //developer.chrome.com/docs/extensions/reference/api/scripting#type-RegisteredContentScript
         chrome.scripting.registerContentScripts([{
             id: `GO_TO_SCRIPT_NAME${new Date().getTime()}`,
             js: [`${GO_TO_SCRIPT_NAME}.js`],
