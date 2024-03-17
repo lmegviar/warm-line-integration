@@ -32,9 +32,9 @@ const waitUntil = (func) =>{
     });
 };
 
-// Send a request to add a new GoTo contact using the provide details
-const createGoToRequest = async ({name, address, phone}) => {
-    let store = await waitUntil(() => {
+// Get store of GoTo data required for POST requests from local storage
+const getStore = async () => {
+    return waitUntil(() => {
         let token, orgId;
         if (localStorage) {
             Object.keys(localStorage).forEach((key) => {
@@ -49,13 +49,11 @@ const createGoToRequest = async ({name, address, phone}) => {
         }
         return (token && orgId) ? {token, orgId} : null;
     });
+};
 
-    if (!store) {
-        console.log("Something went wrong fetching data from localStorage.");
-        return;
-    }
-
-    let body = {
+// Make body for GoTo contact POST request
+const makePOSTBody = ({name, address, phone}) => {
+    return {
         "firstName": name,
         "tags": [],
         "phones": [
@@ -73,17 +71,32 @@ const createGoToRequest = async ({name, address, phone}) => {
         ],
         "sourceCode": "PERSONAL"
     };
+};
+
+// Send a request to add a new GoTo contact using the provide details
+const createGoToRequest = async (data) => {
+    let store = await getStore();
+
+    if (!store) {
+        console.log("Something went wrong fetching data from localStorage.");
+        return;
+    }
+
+    let body = makePOSTBody(data)
 
     let headers = Object.assign({ 
         "authorization": `Bearer ${store.token}`,
         "x-organization-id": store.orgId
     }, GO_TO_POST_HEADERS);
 
-    fetch(GO_TO_POST_URL, {
+    let fetchOptions = {
         method: "POST", 
         headers: headers, 
         body: JSON.stringify(body)
-    }).then(res => res.json())
+    };
+
+    fetch(GO_TO_POST_URL, fetchOptions)
+    .then(res => res.json())
     .then((data) => {
         console.log("Profile created!");
         return true;
