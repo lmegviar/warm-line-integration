@@ -9,9 +9,9 @@ Helpful Documentation:
 
 console.log("Warm Line Integration - Service Worker is running.");
 
-const GO_TO_CREATE_CONTACT_URL = "https://api.jive.com/TODO";
+const GO_TO_CREATE_CONTACT_URL = "https://app.goto.com/contacts/new";
 const I_CAROL_POST_URL = "*://na0.icarol.com/secure/profiles/ProfileView2.aspx*";
-const GO_TO_SCRIPT_NAME = "go-to";
+const GO_TO_SCRIPT_NAME = "goTo";
 const pendingContacts = {/*[tabId]: {name, phone, address}*/};
 
 const handleMessage = (msg, sender, sendResponse) => {
